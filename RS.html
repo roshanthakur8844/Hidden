@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quiet Memories</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@200;300&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  height:100vh;
+  background:#07040d;
+  overflow:hidden;
+  color:#e8e6f0;
+  font-family:'Cormorant Garamond',serif;
+}
+
+/* hide cursor ONLY on desktop */
+@media (hover:hover){
+  body{cursor:none}
+}
+
+/* ================= BACKGROUND ================= */
+
+.gradient-bg{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at center,#140a25,#05020a 70%);
+}
+
+.fog{
+  position:absolute;
+  inset:-20%;
+  background:
+    radial-gradient(circle at 40% 50%, rgba(200,150,255,.07), transparent 40%),
+    radial-gradient(circle at 60% 60%, rgba(120,80,200,.05), transparent 45%);
+  filter:blur(80px);
+  pointer-events:none;
+  transition:opacity 2s ease;
+}
+
+/* ================= START ================= */
+
+.start-page{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:#07040d;
+  transition:opacity 1.5s ease;
+}
+.start-page.hidden{opacity:0;pointer-events:none}
+
+.start-title{font-size:3rem;margin-bottom:20px}
+.start-subtitle{opacity:.5;margin-bottom:40px}
+.start-button{
+  padding:14px 38px;
+  border-radius:50px;
+  background:transparent;
+  border:1px solid rgba(200,150,255,.5);
+  color:#e8e6f0;
+  font-size:1.1rem;
+}
+
+/* ================= POEM ================= */
+
+.main{
+  position:relative;
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+.poem{
+  text-align:center;
+  opacity:0;
+  max-width:90vw;
+}
+
+.poem.show{
+  animation:fadeIn 3s ease forwards, heartbeat 6s ease-in-out infinite;
+}
+
+.line{
+  font-size:1.3rem;
+  line-height:2.4;
+  margin:10px 0;
+  opacity:0;
+  filter:blur(6px);
+  transform:translateY(18px);
+}
+
+.line.show{
+  animation:remember 2s ease forwards;
+}
+
+.line:nth-child(1){animation-delay:.6s}
+.line:nth-child(2){animation-delay:1.2s}
+.line:nth-child(3){animation-delay:1.8s}
+.line:nth-child(4){animation-delay:2.4s}
+
+@keyframes remember{
+  to{opacity:1;filter:blur(0);transform:none}
+}
+@keyframes fadeIn{to{opacity:1}}
+
+@keyframes heartbeat{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.015)}
+}
+
+/* ================= PRESENCE ================= */
+
+.presence{
+  margin-top:30px;
+  font-size:.9rem;
+  opacity:0;
+  transition:opacity 3s ease;
+}
+
+/* ================= TIME ================= */
+
+.time{
+  position:absolute;
+  bottom:30px;
+  font-family:'Inter',sans-serif;
+  font-size:.7rem;
+  opacity:.15;
+  letter-spacing:3px;
+}
+
+/* ================= DUST ================= */
+
+.dust{
+  position:absolute;
+  width:3px;
+  height:3px;
+  background:rgba(200,150,255,.6);
+  border-radius:50%;
+  filter:blur(1px);
+  animation:dust 9s linear forwards;
+}
+
+@keyframes dust{
+  from{transform:translateY(0);opacity:.7}
+  to{transform:translateY(-140px);opacity:0}
+}
+</style>
+</head>
+
+<body>
+
+<div class="start-page" id="start">
+  <div class="start-title">Quiet Memories</div>
+  <div class="start-subtitle">Some feelings don’t leave</div>
+  <button class="start-button" id="enter">Enter</button>
+</div>
+
+<div class="gradient-bg"></div>
+<div class="fog" id="fog"></div>
+
+<div class="main">
+  <div class="poem" id="poem">
+    <div class="line">There are loves that don’t need to be spoken,</div>
+    <div class="line">yet they echo louder than words ever could.</div>
+    <div class="line">Like gravity holding the moon to the earth—</div>
+    <div class="line">unseen, unheard, but always there.</div>
+
+    <div class="presence" id="presence">
+      I know you’re still here.
+    </div>
+  </div>
+
+  <div class="time" id="time"></div>
+</div>
+
+<audio id="music" loop playsinline>
+  <source src="https://raw.githubusercontent.com/roshanthakur8844/Hidden/main/Paro%20_%20Aditya%20Rikhari%20_%20UNPLG'd%20_%20Vocals%20Only....mp3">
+</audio>
+
+<script>
+const enter=document.getElementById('enter');
+const start=document.getElementById('start');
+const poem=document.getElementById('poem');
+const lines=document.querySelectorAll('.line');
+const presence=document.getElementById('presence');
+const fog=document.getElementById('fog');
+const music=document.getElementById('music');
+
+/* ENTER */
+enter.onclick=async()=>{
+  start.classList.add('hidden');
+
+  poem.classList.add('show');
+  lines.forEach(l=>l.classList.add('show'));
+
+  // mobile-safe audio
+  try{
+    await music.play();
+    music.volume=.55;
+  }catch{}
+
+  fog.style.opacity=.3;
+  dustLoop();
+  idleDetect();
+};
+
+/* DUST */
+function dustLoop(){
+  const d=document.createElement('div');
+  d.className='dust';
+  d.style.left=50+(Math.random()*20-10)+'%';
+  d.style.top=50+(Math.random()*20-10)+'%';
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(),9000);
+  setTimeout(dustLoop,700);
+}
+
+/* IDLE PRESENCE */
+let idle;
+function idleDetect(){
+  clearTimeout(idle);
+  presence.style.opacity=0;
+  idle=setTimeout(()=>presence.style.opacity=.5,9000);
+}
+document.addEventListener('touchstart',idleDetect);
+document.addEventListener('click',idleDetect);
+
+/* TIME */
+const startDate=new Date('2022-06-20');
+function update(){
+  const d=Math.floor((Date.now()-startDate)/(1000*60*60*24));
+  document.getElementById('time').textContent=d+' days of quiet memories';
+}
+update();setInterval(update,60000);
+</script>
+
+</body>
+</html>
