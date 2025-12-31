@@ -1,248 +1,567 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
-<title>Quiet Memories</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>Rubik's Master 3D</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@200;300&display=swap');
-
-*{margin:0;padding:0;box-sizing:border-box}
-
-body{
-  height:100vh;
-  background:#07040d;
-  overflow:hidden;
-  color:#e8e6f0;
-  font-family:'Cormorant Garamond',serif;
+:root {
+  --bg: #0f172a;
+  --primary: #3b82f6;
+  --accent: #facc15;
+  --size: 65px; /* Size of one small cubie */
 }
 
-/* hide cursor ONLY on desktop */
-@media (hover:hover){
-  body{cursor:none}
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at center, #1e293b, #000);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: white;
+  overflow: hidden;
+  touch-action: none;
 }
 
-/* ================= BACKGROUND ================= */
-
-.gradient-bg{
-  position:absolute;
-  inset:0;
-  background:radial-gradient(circle at center,#140a25,#05020a 70%);
+/* --- WELCOME SCREEN OVERLAY --- */
+.overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(15, 23, 42, 0.98);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
 }
 
-.fog{
-  position:absolute;
-  inset:-20%;
-  background:
-    radial-gradient(circle at 40% 50%, rgba(200,150,255,.07), transparent 40%),
-    radial-gradient(circle at 60% 60%, rgba(120,80,200,.05), transparent 45%);
-  filter:blur(80px);
-  pointer-events:none;
-  transition:opacity 2s ease;
+.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* ================= START ================= */
-
-.start-page{
-  position:fixed;
-  inset:0;
-  z-index:100;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  background:#07040d;
-  transition:opacity 1.5s ease;
+/* Welcome Animation Cube */
+.demo-cube {
+  width: 60px; height: 60px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: spinDemo 4s infinite linear;
+  margin-bottom: 40px;
 }
-.start-page.hidden{opacity:0;pointer-events:none}
-
-.start-title{font-size:3rem;margin-bottom:20px}
-.start-subtitle{opacity:.5;margin-bottom:40px}
-.start-button{
-  padding:14px 38px;
-  border-radius:50px;
-  background:transparent;
-  border:1px solid rgba(200,150,255,.5);
-  color:#e8e6f0;
-  font-size:1.1rem;
+.d-face {
+  position: absolute;
+  width: 60px; height: 60px;
+  background: rgba(255,255,255,0.1);
+  border: 2px solid var(--primary);
+  opacity: 0.8;
+  box-shadow: 0 0 15px var(--primary);
 }
+.d-face:nth-child(1) { transform: translateZ(30px); }
+.d-face:nth-child(2) { transform: rotateY(180deg) translateZ(30px); }
+.d-face:nth-child(3) { transform: rotateY(90deg) translateZ(30px); }
+.d-face:nth-child(4) { transform: rotateY(-90deg) translateZ(30px); }
+.d-face:nth-child(5) { transform: rotateX(90deg) translateZ(30px); }
+.d-face:nth-child(6) { transform: rotateX(-90deg) translateZ(30px); }
 
-/* ================= POEM ================= */
-
-.main{
-  position:relative;
-  height:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
+@keyframes spinDemo {
+  0% { transform: rotateX(0) rotateY(0); }
+  100% { transform: rotateX(360deg) rotateY(360deg); }
 }
 
-.poem{
-  text-align:center;
-  opacity:0;
-  max-width:90vw;
+.title {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  background: linear-gradient(to right, #fff, var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
 }
 
-.poem.show{
-  animation:fadeIn 3s ease forwards, heartbeat 6s ease-in-out infinite;
+.instructions-box {
+  background: rgba(255,255,255,0.05);
+  padding: 25px;
+  border-radius: 16px;
+  text-align: left;
+  max-width: 320px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(5px);
 }
 
-.line{
-  font-size:1.3rem;
-  line-height:2.4;
-  margin:10px 0;
-  opacity:0;
-  filter:blur(6px);
-  transform:translateY(18px);
+.inst-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  font-size: 15px;
+  color: #e2e8f0;
+}
+.inst-row:last-child { margin-bottom: 0; }
+.icon { font-size: 22px; width: 30px; text-align: center; }
+
+.start-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 16px 50px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: pulseBtn 2s infinite;
+}
+.start-btn:active { transform: scale(0.95); }
+
+@keyframes pulseBtn {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
 }
 
-.line.show{
-  animation:remember 2s ease forwards;
+/* --- GITHUB LINK --- */
+.github-link {
+  position: absolute;
+  bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.2s;
+  padding: 8px 16px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 20px;
+}
+.github-link:hover { color: white; background: rgba(0,0,0,0.5); }
+.github-link svg { width: 20px; height: 20px; fill: currentColor; }
+
+/* --- GAME UI --- */
+.ui-container {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  z-index: 10;
 }
 
-.line:nth-child(1){animation-delay:.6s}
-.line:nth-child(2){animation-delay:1.2s}
-.line:nth-child(3){animation-delay:1.8s}
-.line:nth-child(4){animation-delay:2.4s}
-
-@keyframes remember{
-  to{opacity:1;filter:blur(0);transform:none}
+.hud {
+  text-align: center;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.5s ease 0.5s;
 }
-@keyframes fadeIn{to{opacity:1}}
+.hud.visible { opacity: 1; transform: translateY(0); }
 
-@keyframes heartbeat{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.015)}
-}
+.hud h1 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: #64748b; }
+.stats { font-family: 'Courier New', monospace; color: white; font-size: 24px; font-weight: bold; margin-top: 5px; }
 
-/* ================= PRESENCE ================= */
-
-.presence{
-  margin-top:30px;
-  font-size:.9rem;
-  opacity:0;
-  transition:opacity 3s ease;
+.controls {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  pointer-events: auto;
+  margin-bottom: 20px;
 }
 
-/* ================= TIME ================= */
+button.game-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+  transition: background 0.2s;
+}
+button.game-btn:hover { background: rgba(255, 255, 255, 0.15); }
+button.game-btn:active { transform: scale(0.95); }
 
-.time{
-  position:absolute;
-  bottom:30px;
-  font-family:'Inter',sans-serif;
-  font-size:.7rem;
-  opacity:.15;
-  letter-spacing:3px;
+/* --- 3D SCENE --- */
+.scene {
+  width: 100%; height: 100%;
+  perspective: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* ================= DUST ================= */
-
-.dust{
-  position:absolute;
-  width:3px;
-  height:3px;
-  background:rgba(200,150,255,.6);
-  border-radius:50%;
-  filter:blur(1px);
-  animation:dust 9s linear forwards;
+.pivot {
+  position: relative;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(-30deg) rotateY(-45deg);
+  transition: transform 0.1s linear; 
 }
 
-@keyframes dust{
-  from{transform:translateY(0);opacity:.7}
-  to{transform:translateY(-140px);opacity:0}
+/* CUBIES */
+.cubie {
+  position: absolute;
+  width: var(--size); height: var(--size);
+  transform-style: preserve-3d;
+  left: calc(var(--size) * -0.5); 
+  top: calc(var(--size) * -0.5);
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
+
+.face {
+  position: absolute;
+  width: 100%; height: 100%;
+  border-radius: 8px;
+  background: #000;
+  border: 3px solid #000; /* Realistic plastic gap */
+  box-sizing: border-box;
+  backface-visibility: hidden;
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.3); /* Sticker depth */
+}
+
+/* Face Transforms */
+.face.F { transform: translateZ(calc(var(--size)/2)); }
+.face.B { transform: rotateY(180deg) translateZ(calc(var(--size)/2)); }
+.face.R { transform: rotateY(90deg) translateZ(calc(var(--size)/2)); }
+.face.L { transform: rotateY(-90deg) translateZ(calc(var(--size)/2)); }
+.face.U { transform: rotateX(90deg) translateZ(calc(var(--size)/2)); }
+.face.D { transform: rotateX(-90deg) translateZ(calc(var(--size)/2)); }
+
+/* Colors - Bright Neon Style */
+.c-red { background: #ef4444; }
+.c-orange { background: #f97316; }
+.c-blue { background: #3b82f6; }
+.c-green { background: #22c55e; }
+.c-white { background: #f1f5f9; }
+.c-yellow { background: #facc15; }
+.c-black { background: #111; }
+
 </style>
 </head>
-
 <body>
 
-<div class="start-page" id="start">
-  <div class="start-title">Quiet Memories</div>
-  <div class="start-subtitle">Some feelings don’t leave</div>
-  <button class="start-button" id="enter">Enter</button>
-</div>
+<audio id="bgMusic" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
 
-<div class="gradient-bg"></div>
-<div class="fog" id="fog"></div>
-
-<div class="main">
-  <div class="poem" id="poem">
-    <div class="line">There are loves that don’t need to be spoken,</div>
-    <div class="line">yet they echo louder than words ever could.</div>
-    <div class="line">Like gravity holding the moon to the earth—</div>
-    <div class="line">unseen, unheard, but always there.</div>
-
-    <div class="presence" id="presence">
-      I know you’re still here.
+<div class="overlay" id="welcomeScreen">
+  <div class="demo-cube">
+    <div class="d-face"></div><div class="d-face"></div><div class="d-face"></div>
+    <div class="d-face"></div><div class="d-face"></div><div class="d-face"></div>
+  </div>
+  
+  <div class="title">Rubik's 3D</div>
+  
+  <div class="instructions-box">
+    <div class="inst-row">
+      <div class="icon">👆</div>
+      <div>Swipe on <b>Cube</b> to rotate layers</div>
+    </div>
+    <div class="inst-row">
+      <div class="icon">🔄</div>
+      <div>Drag <b>Background</b> to rotate view</div>
+    </div>
+    <div class="inst-row">
+      <div class="icon">🎵</div>
+      <div>Relax & Solve</div>
     </div>
   </div>
 
-  <div class="time" id="time"></div>
+  <button class="start-btn" onclick="startGame()">START GAME</button>
+
+  <a href="YOUR_GITHUB_LINK_HERE" target="_blank" class="github-link">
+    <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+    My GitHub
+  </a>
 </div>
 
-<audio id="music" loop playsinline>
-  <source src="https://raw.githubusercontent.com/roshanthakur8844/Hidden/main/Paro%20_%20Aditya%20Rikhari%20_%20UNPLG'd%20_%20Vocals%20Only....mp3">
-</audio>
+<div class="ui-container">
+  <div class="hud" id="topHud">
+    <h1>Total Moves</h1>
+    <div class="stats" id="moveCount">0</div>
+  </div>
+
+  <div class="hud" id="bottomHud">
+    <div class="controls">
+      <button class="game-btn" onclick="game.scramble()" style="color:#22c55e">SHUFFLE</button>
+      <button class="game-btn" onclick="game.reset()" style="color:#ef4444">RESET</button>
+    </div>
+    <div id="status" style="color:#facc15; font-weight:bold; min-height:20px; font-size:18px;"></div>
+  </div>
+</div>
+
+<div class="scene" id="scene">
+  <div class="pivot" id="cubePivot"></div>
+</div>
 
 <script>
-const enter=document.getElementById('enter');
-const start=document.getElementById('start');
-const poem=document.getElementById('poem');
-const lines=document.querySelectorAll('.line');
-const presence=document.getElementById('presence');
-const fog=document.getElementById('fog');
-const music=document.getElementById('music');
-
-/* ENTER */
-enter.onclick=async()=>{
-  start.classList.add('hidden');
-
-  poem.classList.add('show');
-  lines.forEach(l=>l.classList.add('show'));
-
-  // mobile-safe audio
-  try{
-    await music.play();
-    music.volume=.55;
-  }catch{}
-
-  fog.style.opacity=.3;
-  dustLoop();
-  idleDetect();
-};
-
-/* DUST */
-function dustLoop(){
-  const d=document.createElement('div');
-  d.className='dust';
-  d.style.left=50+(Math.random()*20-10)+'%';
-  d.style.top=50+(Math.random()*20-10)+'%';
-  document.body.appendChild(d);
-  setTimeout(()=>d.remove(),9000);
-  setTimeout(dustLoop,700);
+/* --- START LOGIC --- */
+function startGame() {
+  // 1. Hide Welcome Screen
+  document.getElementById('welcomeScreen').classList.add('hidden');
+  
+  // 2. Show UI
+  document.getElementById('topHud').classList.add('visible');
+  document.getElementById('bottomHud').classList.add('visible');
+  
+  // 3. Play Music
+  const audio = document.getElementById('bgMusic');
+  audio.volume = 0.4; // Set volume to 40%
+  audio.play().catch(error => {
+    console.log("Audio playback failed (check if file exists):", error);
+  });
 }
 
-/* IDLE PRESENCE */
-let idle;
-function idleDetect(){
-  clearTimeout(idle);
-  presence.style.opacity=0;
-  idle=setTimeout(()=>presence.style.opacity=.5,9000);
-}
-document.addEventListener('touchstart',idleDetect);
-document.addEventListener('click',idleDetect);
+/* --- RUBIK'S ENGINE --- */
+class RubiksGame {
+  constructor() {
+    this.pivot = document.getElementById('cubePivot');
+    this.statusEl = document.getElementById('status');
+    this.movesEl = document.getElementById('moveCount');
+    
+    this.cubies = []; 
+    this.isAnimating = false;
+    this.moveCount = 0;
+    
+    // Initial State
+    this.colors = {
+      U: Array(9).fill('c-white'), D: Array(9).fill('c-yellow'),
+      L: Array(9).fill('c-green'), R: Array(9).fill('c-blue'),
+      F: Array(9).fill('c-red'), B: Array(9).fill('c-orange')
+    };
 
-/* TIME */
-const startDate=new Date('2022-06-20');
-function update(){
-  const d=Math.floor((Date.now()-startDate)/(1000*60*60*24));
-  document.getElementById('time').textContent=d+' days of quiet memories';
+    this.init();
+    this.setupInputs();
+  }
+
+  init() {
+    this.pivot.innerHTML = '';
+    this.cubies = [];
+    
+    // Generate 27 Cubies
+    for(let x=-1; x<=1; x++) {
+      for(let y=-1; y<=1; y++) {
+        for(let z=-1; z<=1; z++) {
+          const el = document.createElement('div');
+          el.className = 'cubie';
+          el.dataset.x = x; el.dataset.y = y; el.dataset.z = z;
+          
+          this.updateCubieTransform(el, x, y, z);
+          
+          ['F','B','L','R','U','D'].forEach(f => {
+            const face = document.createElement('div');
+            face.className = `face ${f} c-black`;
+            el.appendChild(face);
+          });
+          this.pivot.appendChild(el);
+          this.cubies.push(el);
+        }
+      }
+    }
+    this.paint();
+  }
+
+  updateCubieTransform(el, x, y, z, rotAxis=null, rotDir=0) {
+    const gap = 68; // Spacing
+    let transform = `translate3d(${x*gap}px, ${y*gap}px, ${z*gap}px)`;
+    if (rotAxis) {
+      const deg = rotDir * 90;
+      if(rotAxis === 'x') transform += ` rotateX(${deg}deg)`;
+      if(rotAxis === 'y') transform += ` rotateY(${deg}deg)`;
+      if(rotAxis === 'z') transform += ` rotateZ(${deg}deg)`;
+    }
+    el.style.transform = transform;
+  }
+
+  paint() {
+    const getCubie = (x,y,z) => this.cubies.find(c => 
+      parseInt(c.dataset.x)===x && parseInt(c.dataset.y)===y && parseInt(c.dataset.z)===z
+    );
+    const apply = (face, mapFn) => {
+      for(let i=0; i<9; i++) {
+        const coords = mapFn(i);
+        const c = getCubie(coords.x, coords.y, coords.z);
+        if(c) c.querySelector(`.${face}`).className = `face ${face} ${this.colors[face][i]}`;
+      }
+    };
+
+    // Mapping logic
+    apply('F', i => ({ x: (i%3)-1, y: -1*(Math.floor(i/3)-1), z: 1 }));
+    apply('B', i => ({ x: -1*((i%3)-1), y: -1*(Math.floor(i/3)-1), z: -1 }));
+    apply('R', i => ({ x: 1, y: -1*(Math.floor(i/3)-1), z: -1*((i%3)-1) }));
+    apply('L', i => ({ x: -1, y: -1*(Math.floor(i/3)-1), z: (i%3)-1 }));
+    apply('U', i => ({ x: (i%3)-1, y: -1, z: -1*(Math.floor(i/3)-1) }));
+    apply('D', i => ({ x: (i%3)-1, y: 1, z: (Math.floor(i/3)-1) }));
+  }
+
+  turn(face, dir) {
+    if(this.isAnimating) return;
+    this.isAnimating = true;
+
+    let axis, sliceVal;
+    if(face === 'R') { axis='x'; sliceVal=1; }
+    if(face === 'L') { axis='x'; sliceVal=-1; }
+    if(face === 'U') { axis='y'; sliceVal=-1; }
+    if(face === 'D') { axis='y'; sliceVal=1; }
+    if(face === 'F') { axis='z'; sliceVal=1; }
+    if(face === 'B') { axis='z'; sliceVal=-1; }
+
+    const activeCubies = this.cubies.filter(c => parseInt(c.dataset[axis]) === sliceVal);
+    
+    // Correct visual direction for L/D/B
+    let visualDir = dir;
+    if(face==='L' || face==='D' || face==='B') visualDir = -dir;
+
+    activeCubies.forEach(c => this.updateCubieTransform(c, parseInt(c.dataset.x), parseInt(c.dataset.y), parseInt(c.dataset.z), axis, visualDir));
+
+    setTimeout(() => {
+      activeCubies.forEach(c => {
+        c.style.transition = 'none';
+        this.updateCubieTransform(c, parseInt(c.dataset.x), parseInt(c.dataset.y), parseInt(c.dataset.z));
+        requestAnimationFrame(() => c.style.transition = 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)');
+      });
+
+      const steps = dir === -1 ? 1 : 3;
+      for(let k=0; k<steps; k++) this.applyLogic(face);
+
+      this.paint();
+      this.moveCount++;
+      this.movesEl.innerText = this.moveCount;
+      this.checkWin();
+      this.isAnimating = false;
+    }, 300);
+  }
+
+  applyLogic(face) {
+    const rot = arr => [arr[6], arr[3], arr[0], arr[7], arr[4], arr[1], arr[8], arr[5], arr[2]];
+    const s = this.colors;
+    const swap = (a,ai,b,bi,c,ci,d,di) => {
+      const t = ai.map(i => s[a][i]);
+      ai.forEach((i,x) => s[a][i] = s[b][bi[x]]);
+      bi.forEach((i,x) => s[b][i] = s[c][ci[x]]);
+      ci.forEach((i,x) => s[c][i] = s[d][di[x]]);
+      di.forEach((i,x) => s[d][i] = t[x]);
+    };
+
+    switch(face) {
+      case 'U': s.U=rot(s.U); swap('F',[0,1,2],'L',[0,1,2],'B',[0,1,2],'R',[0,1,2]); break;
+      case 'D': s.D=rot(s.D); swap('F',[6,7,8],'R',[6,7,8],'B',[6,7,8],'L',[6,7,8]); break;
+      case 'L': s.L=rot(s.L); swap('U',[0,3,6],'F',[0,3,6],'D',[0,3,6],'B',[8,5,2]); break;
+      case 'R': s.R=rot(s.R); swap('U',[8,5,2],'B',[0,3,6],'D',[8,5,2],'F',[8,5,2]); break;
+      case 'F': s.F=rot(s.F); swap('U',[6,7,8],'R',[0,3,6],'D',[2,1,0],'L',[8,5,2]); break;
+      case 'B': s.B=rot(s.B); swap('U',[2,1,0],'L',[0,3,6],'D',[6,7,8],'R',[8,5,2]); break;
+    }
+  }
+
+  scramble() {
+    if(this.isAnimating) return;
+    this.statusEl.innerText = "SHUFFLING...";
+    const moves = ['U','D','L','R','F','B'];
+    let count = 0;
+    const interval = setInterval(() => {
+      const m = moves[Math.floor(Math.random()*moves.length)];
+      this.turn(m, -1);
+      if(++count >= 15) {
+        clearInterval(interval);
+        this.statusEl.innerText = "";
+        this.moveCount = 0;
+        this.movesEl.innerText = 0;
+      }
+    }, 150);
+  }
+
+  reset() {
+    this.colors = {
+      U:Array(9).fill('c-white'), D:Array(9).fill('c-yellow'),
+      L:Array(9).fill('c-green'), R:Array(9).fill('c-blue'),
+      F:Array(9).fill('c-red'), B:Array(9).fill('c-orange')
+    };
+    this.paint();
+    this.moveCount = 0;
+    this.movesEl.innerText = 0;
+    this.statusEl.innerText = "";
+  }
+
+  checkWin() {
+    if(this.moveCount > 0 && Object.values(this.colors).every(f => f.every(c => c === f[0]))) {
+      this.statusEl.innerText = "🎉 SOLVED!";
+      this.statusEl.style.textShadow = "0 0 10px #facc15";
+    }
+  }
+
+  setupInputs() {
+    let isDragging = false, isCubeTouch = false;
+    let startX, startY;
+    let viewX = -30, viewY = -45;
+
+    const onStart = (e) => {
+      // Ignore clicks on buttons/links
+      if(e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.closest('a')) return;
+      // Ignore clicks if overlay is still visible
+      if(!document.getElementById('welcomeScreen').classList.contains('hidden')) return;
+
+      isDragging = true;
+      startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+      startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+      isCubeTouch = e.target.closest('.cubie') !== null;
+      document.body.style.cursor = isCubeTouch ? 'pointer' : 'grabbing';
+    };
+
+    const onMove = (e) => {
+      if(!isDragging) return;
+      const x = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+      const y = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+      
+      if(!isCubeTouch) {
+        const dx = x - startX;
+        const dy = y - startY;
+        viewY += dx * 0.5;
+        viewX -= dy * 0.5;
+        this.pivot.style.transform = `rotateX(${viewX}deg) rotateY(${viewY}deg)`;
+        startX = x; startY = y;
+      }
+    };
+
+    const onEnd = (e) => {
+      if(!isDragging) return;
+      isDragging = false;
+      document.body.style.cursor = 'default';
+
+      if(isCubeTouch) {
+        const x = e.type.includes('mouse') ? e.clientX : e.changedTouches[0].clientX;
+        const y = e.type.includes('mouse') ? e.clientY : e.changedTouches[0].clientY;
+        const dx = x - startX;
+        const dy = y - startY;
+        const threshold = 30; // Min swipe distance
+
+        if(Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+          if(Math.abs(dx) > Math.abs(dy)) {
+             // Horizontal: Turn Top Face (U)
+             dx > 0 ? this.turn('U', -1) : this.turn('U', 1);
+          } else {
+             // Vertical: Turn Right Face (R)
+             dy > 0 ? this.turn('R', 1) : this.turn('R', -1);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', onStart);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchstart', onStart, {passive:false});
+    document.addEventListener('touchmove', onMove, {passive:false});
+    document.addEventListener('touchend', onEnd);
+  }
 }
-update();setInterval(update,60000);
+
+const game = new RubiksGame();
 </script>
-
 </body>
 </html>
